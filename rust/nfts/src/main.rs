@@ -40,9 +40,9 @@ async fn main() {
     // Setup indexing config
     let config = Config::new(
         // Database
-        PostgresRepo::new("postgres://postgres:postgres@localhost/example-db"),
+        PostgresRepo::new(&get_database_url()),
         // All possible chains in your Dapp
-        supported_chains(),
+        get_supported_chains(),
     )
     // add BAYC's and Doodles' contracts
     .add_contract(bayc_contract)
@@ -50,13 +50,26 @@ async fn main() {
 
     // Start Indexing Process
     Chaindexing::index_states(&config).await.unwrap();
+
+    println!("NFT States are being indexed. Check nft_states table to view the indices in real time");
+
+    loop {
+        // Infinite loop to keep the main thread running
+    }
 }
 
-fn supported_chains() -> Chains {
-    HashMap::from([(Chain::Mainnet, mainnet_json_rpc_url())])
+
+fn get_database_url() -> String {
+    dotenvy::dotenv().ok();
+
+    std::env::var("DATABASE_URL").expect("DATABASE_URL must be set")
 }
 
-fn mainnet_json_rpc_url() -> String {
+fn get_supported_chains() -> Chains {
+    HashMap::from([(Chain::Mainnet, get_mainnet_json_rpc_url())])
+}
+
+fn get_mainnet_json_rpc_url() -> String {
     dotenvy::dotenv().ok();
 
     std::env::var("MAINNET_JSON_RPC_URL").expect("MAINNET_JSON_RPC_URL must be set")
