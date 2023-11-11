@@ -1,9 +1,7 @@
 mod event_handlers;
 mod states;
 
-use std::collections::HashMap;
-
-use chaindexing::{Chain, Chaindexing, Chains, Config, Contract, PostgresRepo, Repo};
+use chaindexing::{Chain, Chaindexing, Config, Contract, PostgresRepo, Repo};
 use event_handlers::TransferEventHandler;
 use states::NftStateMigrations;
 
@@ -41,9 +39,9 @@ async fn main() {
     let config = Config::new(
         // Database
         PostgresRepo::new(&get_database_url()),
-        // All possible chains in your Dapp
-        get_supported_chains(),
     )
+    // Add all possible chains in your Dapp
+    .add_chain(Chain::Mainnet, &get_mainnet_json_rpc_url())
     // add BAYC's and Doodles' contracts
     .add_contract(bayc_contract)
     .add_contract(doodles_contract);
@@ -63,10 +61,6 @@ fn get_database_url() -> String {
     dotenvy::dotenv().ok();
 
     std::env::var("DATABASE_URL").expect("DATABASE_URL must be set")
-}
-
-fn get_supported_chains() -> Chains {
-    HashMap::from([(Chain::Mainnet, get_mainnet_json_rpc_url())])
 }
 
 fn get_mainnet_json_rpc_url() -> String {
