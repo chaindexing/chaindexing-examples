@@ -41,7 +41,7 @@ impl EventHandler for TransferEventHandler {
         if let Some(nft_state) = NftState::read_one(
             [
                 ("token_id".to_owned(), token_id.to_string()),
-                ("owner_address".to_owned(), from.to_string()),
+                ("contract_address".to_owned(), from.to_string()),
             ]
             .into(),
             &event_context,
