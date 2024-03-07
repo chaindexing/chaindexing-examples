@@ -3,7 +3,7 @@ mod states;
 
 use chaindexing::{Chain, Chaindexing, Config, Contract, PostgresRepo, Repo};
 use event_handlers::TransferEventHandler;
-use states::NftStateMigrations;
+use states::NftMigrations;
 
 #[tokio::main]
 async fn main() {
@@ -15,7 +15,7 @@ async fn main() {
             TransferEventHandler,
         )
         // add migration for the state's DB schema
-        .add_state_migrations(NftStateMigrations)
+        .add_state_migrations(NftMigrations)
         // add contract address for BAYC
         .add_address(
             "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
@@ -46,16 +46,19 @@ async fn main() {
     .add_contract(bayc_contract)
     .add_contract(doodles_contract);
 
+    println!("Start indexing states with Chaindexing...");
+
     // Start Indexing Process
     Chaindexing::index_states(&config).await.unwrap();
 
-    println!("NFT States are being indexed. Check nft_states table to view the indices in real time");
+    println!(
+        "NFT States are being indexed. Check nft_states table to view the indices in real time"
+    );
 
     loop {
         // Infinite loop to keep the main thread running
     }
 }
-
 
 fn get_database_url() -> String {
     dotenvy::dotenv().ok();
