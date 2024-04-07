@@ -1,7 +1,7 @@
 mod event_handlers;
 mod states;
 
-use chaindexing::{Chain, Chaindexing, Config, Contract, PostgresRepo, Repo};
+use chaindexing::{ChainId, Chain, Chaindexing, Config, Contract, PostgresRepo, Repo};
 use event_handlers::TransferEventHandler;
 use states::NftMigrations;
 
@@ -19,7 +19,7 @@ async fn main() {
         // add contract address for BAYC
         .add_address(
             "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
-            &Chain::Mainnet,
+            &ChainId::Mainnet,
             17773490,
         );
 
@@ -31,7 +31,7 @@ async fn main() {
         )
         .add_address(
             "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
-            &Chain::Mainnet,
+            &ChainId::Mainnet,
             17769635,
         );
 
@@ -41,19 +41,19 @@ async fn main() {
         PostgresRepo::new(&get_database_url()),
     )
     // Add all possible chains in your Dapp
-    .add_chain(Chain::Mainnet, &get_mainnet_json_rpc_url())
+    .add_chain(Chain::new(ChainId::Mainnet, &get_mainnet_json_rpc_url()))
     // add BAYC's and Doodles' contracts
     .add_contract(bayc_contract)
-    .add_contract(doodles_contract);
+    .add_contract(doodles_contract)
+    .reset(26);
 
-    println!("Start indexing states with Chaindexing...");
-
+    println!("Chaindexing is taking a moment to setup...");
     // Start Indexing Process
     Chaindexing::index_states(&config).await.unwrap();
-
     println!(
-        "NFT States are being indexed. Check nft_states table to view the indices in real time"
+        "Chaindexing is indexing states for BAYC and Doodles contracts..."
     );
+    println!("Query 'nfts' table using 'SELECT * from nfts' to see populated indices.");
 
     loop {
         // Infinite loop to keep the main thread running
