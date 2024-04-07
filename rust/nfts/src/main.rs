@@ -1,7 +1,7 @@
 mod event_handlers;
 mod states;
 
-use chaindexing::{ChainId, Chain, Chaindexing, Config, Contract, PostgresRepo, Repo};
+use chaindexing::{Chain, ChainId, Chaindexing, Config, Contract, PostgresRepo, Repo};
 use event_handlers::TransferEventHandler;
 use states::NftMigrations;
 
@@ -50,9 +50,7 @@ async fn main() {
     println!("Chaindexing is taking a moment to setup...");
     // Start Indexing Process
     Chaindexing::index_states(&config).await.unwrap();
-    println!(
-        "Chaindexing is indexing states for BAYC and Doodles contracts..."
-    );
+    println!("Chaindexing is indexing states for BAYC and Doodles contracts...");
     println!("Query 'nfts' table using 'SELECT * from nfts' to see populated indices.");
 
     loop {

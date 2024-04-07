@@ -13,19 +13,12 @@ impl EventHandler for TransferEventHandler {
 
         // Extract each parameter as exactly specified in the ABI:
         // "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
-        let from = event_params.get_address_string("from");
+        let _from = event_params.get_address_string("from");
         let to = event_params.get_address_string("to");
-        let token_id = event_params.get_uint("tokenId").as_u32();
+        let token_id = event_params.get_u32("tokenId");
 
-        if let Some(nft_state) = Nft::read_one(
-            [
-                ("token_id", token_id.to_string()),
-                ("contract_address", from),
-            ]
-            .into(),
-            &event_context,
-        )
-        .await
+        if let Some(nft_state) =
+            Nft::read_one([("token_id", token_id.to_string())].into(), &event_context).await
         {
             let updates = [("owner_address", to.clone())];
             nft_state.update(updates.into(), &event_context).await;
