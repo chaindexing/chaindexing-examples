@@ -1,14 +1,17 @@
-use chaindexing::{ContractState, EventContext, EventHandler};
+use chaindexing::states::{ContractState, Filters};
+use chaindexing::{EventContext, EventHandler, SideEffectContext, SideEffectHandler};
 
 use crate::states::Nft;
 
-pub struct TransferEventHandler;
+pub struct TransferHandler;
 
 #[async_trait::async_trait]
-impl EventHandler for TransferEventHandler {
-    type SharedState = ();
+impl EventHandler for TransferHandler {
+    fn abi(&self) -> &'static str {
+        "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+    }
 
-    async fn handle_event<'a, 'b>(&self, event_context: EventContext<'a, 'b, Self::SharedState>) {
+    async fn handle_event<'a, 'b>(&self, event_context: EventContext<'a, 'b>) {
         let event_params = event_context.get_event_params();
 
         // Extract each parameter as exactly specified in the ABI:
@@ -18,10 +21,11 @@ impl EventHandler for TransferEventHandler {
         let token_id = event_params.get_u32("tokenId");
 
         if let Some(nft_state) =
-            Nft::read_one([("token_id", token_id.to_string())].into(), &event_context).await
+            Nft::read_one(&Filters::new("token_id", token_id), &event_context).await
         {
-            let updates = [("owner_address", to.clone())];
-            nft_state.update(updates.into(), &event_context).await;
+            nft_state
+                .update(&Filters::new("owner_address", to.clone()), &event_context)
+                .await;
         } else {
             Nft {
                 token_id,
@@ -30,5 +34,20 @@ impl EventHandler for TransferEventHandler {
             .create(&event_context)
             .await;
         }
+    }
+}
+
+pub struct TransferSideEffectHandler;
+
+#[async_trait::async_trait]
+impl SideEffectHandler for TransferSideEffectHandler {
+    type SharedState = ();
+
+    fn abi(&self) -> &'static str {
+        "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+    }
+
+    async fn handle_event<'a>(&self, _event_context: SideEffectContext<'a, Self::SharedState>) {
+        // println!("Handling side effect...")
     }
 }

@@ -1,4 +1,4 @@
-use chaindexing::{ContractState, ContractStateMigrations};
+use chaindexing::states::{ContractState, StateMigrations};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -15,7 +15,7 @@ impl ContractState for Nft {
 
 pub struct NftMigrations;
 
-impl ContractStateMigrations for NftMigrations {
+impl StateMigrations for NftMigrations {
     fn migrations(&self) -> Vec<&'static str> {
         vec![
             "CREATE TABLE IF NOT EXISTS nfts (
