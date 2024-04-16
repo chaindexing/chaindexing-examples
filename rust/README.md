@@ -2,6 +2,25 @@
 
 To run an example:
 
-- Make sure you have the DB at the docker-compose level up and running
-- Go into the folder and update the .env file as specified in the .env.sample
-- Finally, run the example : `cargo run` and follow futher instructions from the log
+- Start DB:
+
+```sh
+  docker-compose up
+```
+
+- Create a `.env` file with the secrets as shown in `.env.sample`
+
+- Run `nfts` example using `cargo run -p nfts`
+
+or
+
+- Run `uniswap` example using `cargo run -p uniswap`
+
+## Debugging
+
+Not working? Restart DB per example using:
+
+```sh
+  docker-compose down
+  docker-compose up
+```
