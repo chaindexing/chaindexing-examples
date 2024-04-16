@@ -10,5 +10,3 @@ services:
       POSTGRES_DB: chaindexing-examples-db
     ports:
       - "5432:5432"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
