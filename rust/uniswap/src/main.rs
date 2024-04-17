@@ -13,7 +13,7 @@ async fn main() {
     const UNISWAP_V3_FACTORY_MULTICHAIN_CONTRACT_ADDRESS: &str =
         "0x1F98431c8aD98523631AE4a59f267346ea31F984";
     let uniswap_v3_factory_contract = Contract::<()>::new("UniswapV3Factory")
-        .add_handler(PoolCreatedEventHandler)
+        .add_event_handler(PoolCreatedEventHandler)
         .add_state_migrations(PoolMigrations)
         .add_address(
             UNISWAP_V3_FACTORY_MULTICHAIN_CONTRACT_ADDRESS,
@@ -33,7 +33,7 @@ async fn main() {
 
     // UniswapV3Pool contract with no addresses yet. They will be populated at runtime.
     let uniswap_v3_pool_contract = Contract::new("UniswapV3Pool")
-        .add_handler(SwapEventHandler)
+        .add_event_handler(SwapEventHandler)
         .add_state_migrations(TokenSwapVolumeMigrations);
 
     // Setup config

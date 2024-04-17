@@ -11,7 +11,7 @@ async fn main() {
     // Setup BAYC's contract
     let bayc_contract = Contract::new("BoredApeYachtClub")
         // add transfer event and its corresponding handler
-        .add_handler(TransferHandler)
+        .add_event_handler(TransferHandler)
         .add_side_effect_handler(TransferSideEffectHandler)
         // add migration for the state's DB schema
         .add_state_migrations(NftMigrations)
@@ -24,7 +24,7 @@ async fn main() {
 
     // Setup Doodles' contract
     let doodles_contract = Contract::new("Doodles")
-        .add_handler(TransferHandler)
+        .add_event_handler(TransferHandler)
         .add_address(
             "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
             &ChainId::Mainnet,

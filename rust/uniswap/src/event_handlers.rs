@@ -1,4 +1,4 @@
-use chaindexing::states::{ContractState, Filters, MultiChainState};
+use chaindexing::states::{ContractState, Filters, MultiChainState, Updates};
 use chaindexing::{EventContext, EventHandler};
 
 use crate::states::{Pool, TokenSwapVolume};
@@ -18,10 +18,8 @@ impl EventHandler for PoolCreatedEventHandler {
         let token0_address = event_params.get_address_string("token0");
         let token1_address = event_params.get_address_string("token1");
         let pool_contract_address = event_params.get_address_string("pool");
-        let fee = event_params.get_u32("fee") as i32;
-        // N/B: Need to manually convert integer here (int24 tickSpacing)
-        // See opened issue: https://github.com/rust-ethereum/ethabi/issues/249
-        let tick_spacing = event_params.get_int("tickSpacing").as_u32() as i32;
+        let fee = event_params.get_u32("fee");
+        let tick_spacing = event_params.get_i32("tickSpacing");
 
         Pool {
             token0_address,
@@ -34,12 +32,8 @@ impl EventHandler for PoolCreatedEventHandler {
         .await;
 
         // Include new UniswapV3Pool contract:{pool_contract_address} for indexing...
-        chaindexing::include_contract_in_indexing(
-            &event_context,
-            "UniswapV3Pool",
-            &pool_contract_address,
-        )
-        .await;
+        chaindexing::include_contract(&event_context, "UniswapV3Pool", &pool_contract_address)
+            .await;
     }
 }
 
@@ -92,9 +86,8 @@ async fn create_or_update_token_swap_volume<'a, 'b>(
     {
         let new_amount_ether =
             prev_token_swap_volume.amount_ether.parse::<f64>().unwrap() + amount_ether;
-        let updates = Filters::new("amount_ether", new_amount_ether)
-            .add("last_updated_at", last_updated_at)
-            .within_multi_chain();
+        let updates =
+            Updates::new("amount_ether", new_amount_ether).add("last_updated_at", last_updated_at);
 
         prev_token_swap_volume.update(&updates, event_context).await;
     } else {

@@ -1,4 +1,4 @@
-use chaindexing::states::{ContractState, Filters};
+use chaindexing::states::{ContractState, Filters, Updates};
 use chaindexing::{EventContext, EventHandler, SideEffectContext, SideEffectHandler};
 
 use crate::states::Nft;
@@ -24,7 +24,7 @@ impl EventHandler for TransferHandler {
             Nft::read_one(&Filters::new("token_id", token_id), &event_context).await
         {
             nft_state
-                .update(&Filters::new("owner_address", to.clone()), &event_context)
+                .update(&Updates::new("owner_address", to.clone()), &event_context)
                 .await;
         } else {
             Nft {

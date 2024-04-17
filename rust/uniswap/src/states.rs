@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct Pool {
     pub token0_address: String,
     pub token1_address: String,
-    pub fee: i32,
+    pub fee: u32,
     pub tick_spacing: i32,
     pub pool_contract_address: String,
 }
