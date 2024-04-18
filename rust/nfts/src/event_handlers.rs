@@ -24,7 +24,7 @@ impl EventHandler for TransferHandler {
             Nft::read_one(&Filters::new("token_id", token_id), &event_context).await
         {
             nft_state
-                .update(&Updates::new("owner_address", to.clone()), &event_context)
+                .update(&Updates::new("owner_address", &to), &event_context)
                 .await;
         } else {
             Nft {
@@ -48,6 +48,8 @@ impl SideEffectHandler for TransferSideEffectHandler {
     }
 
     async fn handle_event<'a>(&self, _event_context: SideEffectContext<'a, Self::SharedState>) {
+        // Put side effect logic here
+        // Useful for things like notifications, bridging, etc.
         // println!("Handling side effect...")
     }
 }
