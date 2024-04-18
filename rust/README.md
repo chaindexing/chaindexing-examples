@@ -10,11 +10,7 @@ To run an example:
 
 - Create a `.env` file with the secrets as shown in `.env.sample`
 
-- Run `nfts` example using `cargo run -p nfts`
-
-or
-
-- Run `uniswap` example using `cargo run -p uniswap`
+- Run `nfts` example using `cargo run -p nfts` or for `uniswap`, use `cargo run -p uniswap`
 
 ## Debugging
 

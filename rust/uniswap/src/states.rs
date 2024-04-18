@@ -19,16 +19,14 @@ impl ContractState for Pool {
 pub struct PoolMigrations;
 
 impl StateMigrations for PoolMigrations {
-    fn migrations(&self) -> Vec<&'static str> {
-        vec![
-            "CREATE TABLE IF NOT EXISTS uniswap_pools (
+    fn migrations(&self) -> &'static [&'static str] {
+        &["CREATE TABLE IF NOT EXISTS uniswap_pools (
                 token0_address VARCHAR NOT NULL,
                 token1_address VARCHAR NOT NULL,
                 pool_contract_address VARCHAR NOT NULL,
                 fee INTEGER NOT NULL,
                 tick_spacing INTEGER NOT NULL,
-            )",
-        ]
+            )"]
     }
 }
 
@@ -49,13 +47,11 @@ impl MultiChainState for TokenSwapVolume {
 pub struct TokenSwapVolumeMigrations;
 
 impl StateMigrations for TokenSwapVolumeMigrations {
-    fn migrations(&self) -> Vec<&'static str> {
-        vec![
-            "CREATE TABLE IF NOT EXISTS uniswap_token_swap_volumes (
+    fn migrations(&self) -> &'static [&'static str] {
+        &["CREATE TABLE IF NOT EXISTS uniswap_token_swap_volumes (
                 token_address VARCHAR NOT NULL,
                 amount_ether VARCHAR NOT NULL,
                 last_updated_at BIGINT NOT NULL
-            )",
-        ]
+            )"]
     }
 }

@@ -16,12 +16,10 @@ impl ContractState for Nft {
 pub struct NftMigrations;
 
 impl StateMigrations for NftMigrations {
-    fn migrations(&self) -> Vec<&'static str> {
-        vec![
-            "CREATE TABLE IF NOT EXISTS nfts (
+    fn migrations(&self) -> &'static [&'static str] {
+        &["CREATE TABLE IF NOT EXISTS nfts (
                 token_id INTEGER NOT NULL,
                 owner_address TEXT NOT NULL
-            )",
-        ]
+            )"]
     }
 }
