@@ -4,7 +4,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1"
-chaindexing = { version = "0.1.74"}
+chaindexing = { version = "0.1.75"}
 dotenvy = "0.15"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }

@@ -8,8 +8,8 @@ use event_handlers::{TransferHandler, TransferSideEffectHandler};
 
 #[tokio::main]
 async fn main() {
-    // Setup BAYC's contract
-    let bayc_contract = Contract::new("BoredApeYachtClub")
+    // Setup nft's contract
+    let nfts_contract = Contract::new("ERC721")
         // add transfer event and its corresponding handler
         .add_event_handler(TransferHandler)
         .add_side_effect_handler(TransferSideEffectHandler)
@@ -20,11 +20,8 @@ async fn main() {
             "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
             &ChainId::Mainnet,
             17773490,
-        );
-
-    // Setup Doodles' contract
-    let doodles_contract = Contract::new("Doodles")
-        .add_event_handler(TransferHandler)
+        )
+        // add contract address for Doodles
         .add_address(
             "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
             &ChainId::Mainnet,
@@ -39,8 +36,7 @@ async fn main() {
     // Add all possible chains in your Dapp
     .add_chain(Chain::new(ChainId::Mainnet, &get_mainnet_json_rpc_url()))
     // add BAYC's and Doodles' contracts
-    .add_contract(bayc_contract)
-    .add_contract(doodles_contract);
+    .add_contract(nfts_contract);
 
     println!("Chaindexing is taking a moment to setup...");
     // Start Indexing Process
