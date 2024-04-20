@@ -1,7 +1,8 @@
+use chaindexing::augmenting_std::serde::{Deserialize, Serialize};
 use chaindexing::states::{ContractState, MultiChainState, StateMigrations};
-use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(crate = "chaindexing::augmenting_std::serde")]
 pub struct Pool {
     pub token0_address: String,
     pub token1_address: String,
@@ -32,6 +33,7 @@ impl StateMigrations for PoolMigrations {
 
 /// Volumes swapped on Uniswap per token address
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(crate = "chaindexing::augmenting_std::serde")]
 pub struct TokenSwapVolume {
     pub token_address: String,
     pub amount_ether: String,

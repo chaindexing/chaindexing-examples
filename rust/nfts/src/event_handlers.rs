@@ -5,14 +5,14 @@ use crate::states::Nft;
 
 pub struct TransferHandler;
 
-#[async_trait::async_trait]
+#[chaindexing::augmenting_std::async_trait]
 impl EventHandler for TransferHandler {
     fn abi(&self) -> &'static str {
         "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
     }
 
-    async fn handle_event<'a, 'b>(&self, event_context: EventContext<'a, 'b>) {
-        let event_params = event_context.get_event_params();
+    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) {
+        let event_params = context.get_event_params();
 
         // Extract each parameter as exactly specified in the ABI:
         // "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
@@ -20,26 +20,25 @@ impl EventHandler for TransferHandler {
         let to = event_params.get_address_string("to");
         let token_id = event_params.get_u32("tokenId");
 
-        if let Some(nft_state) =
-            Nft::read_one(&Filters::new("token_id", token_id), &event_context).await
+        if let Some(existing_nft) =
+            Nft::read_one(&Filters::new("token_id", token_id), &context).await
         {
-            nft_state
-                .update(&Updates::new("owner_address", &to), &event_context)
-                .await;
+            let updates = Updates::new("owner_address", &to);
+            existing_nft.update(&updates, &context).await;
         } else {
-            Nft {
+            let new_nft = Nft {
                 token_id,
                 owner_address: to,
-            }
-            .create(&event_context)
-            .await;
+            };
+
+            new_nft.create(&context).await;
         }
     }
 }
 
 pub struct TransferSideEffectHandler;
 
-#[async_trait::async_trait]
+#[chaindexing::augmenting_std::async_trait]
 impl SideEffectHandler for TransferSideEffectHandler {
     type SharedState = ();
 
@@ -47,7 +46,7 @@ impl SideEffectHandler for TransferSideEffectHandler {
         "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
     }
 
-    async fn handle_event<'a>(&self, _event_context: SideEffectContext<'a, Self::SharedState>) {
+    async fn handle_event<'a>(&self, _context: SideEffectContext<'a, Self::SharedState>) {
         // Put side effect logic here
         // Useful for things like notifications, bridging, etc.
         // println!("Handling side effect...")

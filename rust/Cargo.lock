@@ -330,9 +330,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chaindexing"
-version = "0.1.75"
+version = "0.1.77"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da7bcaf69c095d76f1907459e8009149ccd421e249f899889aefe1d3ec086a36"
+checksum = "eff0124af585e17b81ce608a0aa4b31bdc5d384b35fac573cef2c78007a70cbc"
 dependencies = [
  "async-trait",
  "bb8",
@@ -1847,10 +1847,8 @@ checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 name = "nfts"
 version = "0.0.0"
 dependencies = [
- "async-trait",
  "chaindexing",
  "dotenvy",
- "serde",
  "tokio",
 ]
 
@@ -3454,10 +3452,8 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 name = "uniswap"
 version = "0.0.0"
 dependencies = [
- "async-trait",
  "chaindexing",
  "dotenvy",
- "serde",
  "tokio",
 ]
 

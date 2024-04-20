@@ -1,7 +1,8 @@
+use chaindexing::augmenting_std::serde::{Deserialize, Serialize};
 use chaindexing::states::{ContractState, StateMigrations};
-use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(crate = "chaindexing::augmenting_std::serde")]
 pub struct Nft {
     pub token_id: u32,
     pub owner_address: String,
