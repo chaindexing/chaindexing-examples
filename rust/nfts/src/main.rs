@@ -33,6 +33,7 @@ async fn main() {
         // Database
         PostgresRepo::new(&get_database_url()),
     )
+    .with_blocks_per_batch(400)
     // Add all possible chains in your Dapp
     .add_chain(Chain::new(ChainId::Mainnet, &get_mainnet_json_rpc_url()))
     // add BAYC's and Doodles' contracts

@@ -41,7 +41,7 @@ async fn main() {
         .add_chain(Chain::new(ChainId::Mainnet, &get_mainnet_json_rpc_url()))
         // Demonstrate slowing it down
         .with_ingestion_rate_ms(40_000)
-        .with_blocks_per_batch(2_000)
+        .with_blocks_per_batch(400)
         .add_contract(uniswap_v3_factory_contract)
         .add_contract(uniswap_v3_pool_contract);
 
