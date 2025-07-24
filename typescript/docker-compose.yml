@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: chaindexing
+      POSTGRES_USER: chaindexing_user
+      POSTGRES_PASSWORD: chaindexing_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: >
+      postgres 
+      -c log_statement=all 
+      -c log_min_duration_statement=0
+      -c max_connections=200
+
+volumes:
+  postgres_data: 
