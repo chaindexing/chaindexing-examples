@@ -37,7 +37,9 @@ async fn main() {
     // Add all possible chains in your Dapp
     .add_chain(Chain::new(ChainId::Mainnet, &get_mainnet_json_rpc_url()))
     // add BAYC's and Doodles' contracts
-    .add_contract(nfts_contract);
+    .add_contract(nfts_contract)
+    // Reset to force recreation of tables with the fixed migration logic
+    .reset(2);
 
     println!("Chaindexing is taking a moment to setup...");
     // Start Indexing Process

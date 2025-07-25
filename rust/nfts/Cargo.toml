@@ -3,6 +3,6 @@ name = "nfts"
 edition = "2021"
 
 [dependencies]
-chaindexing = { version = "0.1.78" }
+chaindexing = "0.1.80"
 dotenvy = "0.15"
 tokio = { version = "1", features = ["full"] }
