@@ -1,6 +1,6 @@
 use chaindexing::augmenting_std::serde::{Deserialize, Serialize};
-use chaindexing::states::{ContractState, MultiChainState, StateMigrations};
 use chaindexing::state_migrations;
+use chaindexing::states::{ContractState, MultiChainState, StateMigrations};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(crate = "chaindexing::augmenting_std::serde")]
@@ -22,8 +22,7 @@ pub struct PoolMigrations;
 
 impl StateMigrations for PoolMigrations {
     fn migrations(&self) -> &'static [&'static str] {
-        state_migrations!([
-            r#"
+        state_migrations!([r#"
             CREATE TABLE IF NOT EXISTS uniswap_pools (
                 token0_address VARCHAR NOT NULL,
                 token1_address VARCHAR NOT NULL,
@@ -31,8 +30,7 @@ impl StateMigrations for PoolMigrations {
                 fee INTEGER NOT NULL,
                 tick_spacing INTEGER NOT NULL
             )
-            "#
-        ])
+            "#])
     }
 }
 
@@ -55,14 +53,12 @@ pub struct TokenSwapVolumeMigrations;
 
 impl StateMigrations for TokenSwapVolumeMigrations {
     fn migrations(&self) -> &'static [&'static str] {
-        state_migrations!([
-            r#"
+        state_migrations!([r#"
             CREATE TABLE IF NOT EXISTS uniswap_token_swap_volumes (
                 token_address VARCHAR NOT NULL,
                 amount_ether VARCHAR NOT NULL,
                 last_updated_at BIGINT NOT NULL
             )
-            "#
-        ])
+            "#])
     }
 }

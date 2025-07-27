@@ -1,6 +1,6 @@
 use chaindexing::augmenting_std::serde::{Deserialize, Serialize};
-use chaindexing::states::{ContractState, StateMigrations};
 use chaindexing::state_migrations;
+use chaindexing::states::{ContractState, StateMigrations};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(crate = "chaindexing::augmenting_std::serde")]
@@ -19,13 +19,11 @@ pub struct NftMigrations;
 
 impl StateMigrations for NftMigrations {
     fn migrations(&self) -> &'static [&'static str] {
-        state_migrations!([
-            r#"
+        state_migrations!([r#"
             CREATE TABLE IF NOT EXISTS nfts (
                 token_id INTEGER NOT NULL,
                 owner_address TEXT NOT NULL
             )
-            "#
-        ])
+            "#])
     }
 }
