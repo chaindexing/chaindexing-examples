@@ -1,7 +1,7 @@
 mod event_handlers;
 mod states;
 
-use chaindexing::{Chain, ChainId, Config, Contract, PostgresRepo};
+use chaindexing::{Chain, ChainId, Contract, Indexer};
 use event_handlers::{PoolCreatedEventHandler, SwapEventHandler};
 use states::{PoolMigrations, TokenSwapVolumeMigrations};
 
@@ -36,30 +36,29 @@ async fn main() {
         .add_event_handler(SwapEventHandler)
         .add_state_migrations(TokenSwapVolumeMigrations);
 
-    // Setup config
-    let config = Config::new(PostgresRepo::new(&get_database_url()))
-        .add_chain(Chain::new(ChainId::Mainnet, &get_mainnet_json_rpc_url()))
+    // Setup indexer
+    let indexer = Indexer::new(&get_database_url())
+        .chain(Chain::mainnet(&get_mainnet_json_rpc_url()))
         // Demonstrate slowing it down
-        .with_ingestion_rate_ms(40_000)
-        .with_blocks_per_batch(400)
-        .add_contract(uniswap_v3_factory_contract)
-        .add_contract(uniswap_v3_pool_contract);
+        .ingestion_rate_ms(40_000)
+        .blocks_per_batch(400)
+        .contract(uniswap_v3_factory_contract)
+        .contract(uniswap_v3_pool_contract);
 
-    let config = if let Ok(arbitrum_json_rpc_url) = std::env::var("ARBITRUM_JSON_RPC_URL") {
-        config.add_chain(Chain::new(ChainId::Arbitrum, &arbitrum_json_rpc_url))
+    let indexer = if let Ok(arbitrum_json_rpc_url) = std::env::var("ARBITRUM_JSON_RPC_URL") {
+        indexer.chain(Chain::arbitrum(&arbitrum_json_rpc_url))
     } else {
-        config
+        indexer
     };
 
-    let config = if let Ok(polygon_json_rpc_url) = std::env::var("POLYGON_JSON_RPC_URL") {
-        config.add_chain(Chain::new(ChainId::Polygon, &polygon_json_rpc_url))
+    let indexer = if let Ok(polygon_json_rpc_url) = std::env::var("POLYGON_JSON_RPC_URL") {
+        indexer.chain(Chain::polygon(&polygon_json_rpc_url))
     } else {
-        config
+        indexer
     };
 
     println!("Chaindexing is taking a moment to setup...");
-    // Start Indexing Process
-    chaindexing::index_states(&config).await.unwrap();
+    indexer.run().await.unwrap();
     println!("Chaindexing is indexing UniswapV3Factory contract...");
     println!("Query via 'SELECT * from uniswap_pools' to see pools per chain.");
     println!("Also query `uniswap_token_swap_volumes` to view total swap volume per token");
