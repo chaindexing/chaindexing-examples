@@ -46,9 +46,14 @@ impl SideEffectHandler for TransferSideEffectHandler {
         "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
     }
 
-    async fn handle_event<'a>(&self, _context: SideEffectContext<'a, Self::SharedState>) {
-        // Put side effect logic here
-        // Useful for things like notifications, bridging, etc.
-        // println!("Handling side effect...")
+    async fn handle_event<'a>(&self, context: SideEffectContext<'a, Self::SharedState>) {
+        let token_id = context.get_event_params().get_u32("tokenId");
+
+        context
+            .enqueue_outbox(
+                "nft-transfer-notification",
+                &format!("token {token_id} moved"),
+            )
+            .await;
     }
 }
