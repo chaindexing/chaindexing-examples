@@ -1,7 +1,7 @@
 mod event_handlers;
 mod states;
 
-use chaindexing::{Chain, ChainId, Contract, Indexer};
+use chaindexing::{Chain, ChainId, Contract, Indexer, RuntimeConfig};
 use states::NftMigrations;
 
 use event_handlers::{TransferHandler, TransferSideEffectHandler};
@@ -30,7 +30,7 @@ async fn main() {
 
     // Setup and start indexing
     let indexer = Indexer::new(&get_database_url())
-        .blocks_per_batch(400)
+        .runtime(RuntimeConfig::realtime().blocks_per_batch(400))
         // Add all possible chains in your Dapp
         .chain(Chain::mainnet(&get_mainnet_json_rpc_url()))
         // add BAYC's and Doodles' contracts

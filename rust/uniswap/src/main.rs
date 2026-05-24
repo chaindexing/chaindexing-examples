@@ -1,7 +1,7 @@
 mod event_handlers;
 mod states;
 
-use chaindexing::{Chain, ChainId, Contract, Indexer};
+use chaindexing::{Chain, ChainId, Contract, Indexer, RpcPolicy, RuntimeConfig, RuntimeLimits};
 use event_handlers::{PoolCreatedEventHandler, SwapEventHandler};
 use states::{PoolMigrations, TokenSwapVolumeMigrations};
 
@@ -39,9 +39,17 @@ async fn main() {
     // Setup indexer
     let indexer = Indexer::new(&get_database_url())
         .chain(Chain::mainnet(&get_mainnet_json_rpc_url()))
-        // Demonstrate slowing it down
-        .ingestion_rate_ms(40_000)
-        .blocks_per_batch(400)
+        .runtime(
+            RuntimeConfig::catchup_then_realtime()
+                .limits(
+                    RuntimeLimits::balanced()
+                        .db_connections(8)
+                        .max_ingester_workers(4)
+                        .max_handler_workers(4),
+                )
+                .rpc(RpcPolicy::balanced().max_in_flight(24).max_per_chain(8))
+                .blocks_per_batch(400),
+        )
         .contract(uniswap_v3_factory_contract)
         .contract(uniswap_v3_pool_contract);
 
