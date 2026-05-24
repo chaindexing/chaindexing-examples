@@ -12,6 +12,16 @@ To run an example:
 
 - Run `nfts` example using `cargo run -p nfts` or for `uniswap`, use `cargo run -p uniswap`
 
+## Reorg and finality examples
+
+Use [`reorg-policies.md`](reorg-policies.md) to choose a preset for common product
+classes:
+
+- Realtime dashboards and activity feeds.
+- Balanced analytics and reporting.
+- Finality-first payments, claims, and settlement.
+- Outbox webhooks that index quickly but dispatch after safe/finalized blocks.
+
 ## Debugging
 
 Not working? Restart DB per example using:
