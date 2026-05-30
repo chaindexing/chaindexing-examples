@@ -1,5 +1,5 @@
 use chaindexing::states::{ContractState, Filters, MultiChainState, Updates};
-use chaindexing::{EventContext, EventHandler};
+use chaindexing::{EventContext, EventHandler, HandlerResult};
 
 use crate::states::{Pool, TokenSwapVolume};
 
@@ -11,7 +11,7 @@ impl EventHandler for PoolCreatedEventHandler {
         "PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)"
     }
 
-    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) {
+    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) -> HandlerResult {
         let event_params = context.get_event_params();
 
         // Extract each parameter as exactly specified in the ABI:
@@ -29,10 +29,12 @@ impl EventHandler for PoolCreatedEventHandler {
             tick_spacing,
         }
         .create(&context)
-        .await;
+        .await?;
 
         // Include new UniswapV3Pool contract:{pool_contract_address} for indexing...
-        chaindexing::include_contract(&context, "UniswapV3Pool", &pool_contract_address).await;
+        chaindexing::include_contract(&context, "UniswapV3Pool", &pool_contract_address).await?;
+
+        Ok(())
     }
 }
 
@@ -44,7 +46,7 @@ impl EventHandler for SwapEventHandler {
         "Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)"
     }
 
-    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) {
+    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) -> HandlerResult {
         let event_params = context.get_event_params();
         let event = &context.event;
 
@@ -52,7 +54,7 @@ impl EventHandler for SwapEventHandler {
             &Filters::new("pool_contract_address", &event.contract_address).within_multi_chain(),
             &context,
         )
-        .await
+        .await?
         .unwrap();
 
         // Extract each parameter as exactly specified in the ABI:
@@ -64,8 +66,10 @@ impl EventHandler for SwapEventHandler {
 
         let last_updated_at = event.get_block_timestamp();
 
-        create_or_update_token_swap_volume(token0, amount0, last_updated_at, &context).await;
-        create_or_update_token_swap_volume(token1, amount1, last_updated_at, &context).await;
+        create_or_update_token_swap_volume(token0, amount0, last_updated_at, &context).await?;
+        create_or_update_token_swap_volume(token1, amount1, last_updated_at, &context).await?;
+
+        Ok(())
     }
 }
 
@@ -74,21 +78,21 @@ async fn create_or_update_token_swap_volume<'a, 'b>(
     amount_ether: f64,
     last_updated_at: u64,
     context: &EventContext<'a, 'b>,
-) {
+) -> HandlerResult {
     let amount_ether = amount_ether.abs(); // Volume calculation is additive
 
     if let Some(prev_token_swap_volume) = TokenSwapVolume::read_one(
         &Filters::new("token_address", &token_address).within_multi_chain(),
         context,
     )
-    .await
+    .await?
     {
         let new_amount_ether =
             prev_token_swap_volume.amount_ether.parse::<f64>().unwrap() + amount_ether;
         let updates =
             Updates::new("amount_ether", new_amount_ether).add("last_updated_at", last_updated_at);
 
-        prev_token_swap_volume.update(&updates, context).await;
+        prev_token_swap_volume.update(&updates, context).await?;
     } else {
         TokenSwapVolume {
             token_address,
@@ -96,6 +100,8 @@ async fn create_or_update_token_swap_volume<'a, 'b>(
             last_updated_at,
         }
         .create(context)
-        .await;
+        .await?;
     }
+
+    Ok(())
 }

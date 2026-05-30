@@ -1,5 +1,7 @@
 use chaindexing::states::{ContractState, Filters, Updates};
-use chaindexing::{EventContext, EventHandler, SideEffectContext, SideEffectHandler};
+use chaindexing::{
+    EventContext, EventHandler, HandlerResult, SideEffectContext, SideEffectHandler,
+};
 
 use crate::states::Nft;
 
@@ -11,7 +13,7 @@ impl EventHandler for TransferHandler {
         "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
     }
 
-    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) {
+    async fn handle_event<'a, 'b>(&self, context: EventContext<'a, 'b>) -> HandlerResult {
         let event_params = context.get_event_params();
 
         // Extract each parameter as exactly specified in the ABI:
@@ -21,18 +23,20 @@ impl EventHandler for TransferHandler {
         let token_id = event_params.get_u32("tokenId");
 
         if let Some(existing_nft) =
-            Nft::read_one(&Filters::new("token_id", token_id), &context).await
+            Nft::read_one(&Filters::new("token_id", token_id), &context).await?
         {
             let updates = Updates::new("owner_address", &to);
-            existing_nft.update(&updates, &context).await;
+            existing_nft.update(&updates, &context).await?;
         } else {
             let new_nft = Nft {
                 token_id,
                 owner_address: to,
             };
 
-            new_nft.create(&context).await;
+            new_nft.create(&context).await?;
         }
+
+        Ok(())
     }
 }
 
@@ -46,7 +50,10 @@ impl SideEffectHandler for TransferSideEffectHandler {
         "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
     }
 
-    async fn handle_event<'a>(&self, context: SideEffectContext<'a, Self::SharedState>) {
+    async fn handle_event<'a>(
+        &self,
+        context: SideEffectContext<'a, Self::SharedState>,
+    ) -> HandlerResult {
         let token_id = context.get_event_params().get_u32("tokenId");
 
         context
@@ -54,6 +61,8 @@ impl SideEffectHandler for TransferSideEffectHandler {
                 "nft-transfer-notification",
                 &format!("token {token_id} moved"),
             )
-            .await;
+            .await?;
+
+        Ok(())
     }
 }
